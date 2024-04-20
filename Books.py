@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+
 Datas = {
     'Book':[],
     'Type': [],
@@ -16,7 +17,6 @@ Ratings = {
     'Five'  : 5,
 }
 Path = "https://books.toscrape.com/catalogue"
-url = "https://books.toscrape.com/catalogue/category/books_1/index.html"
 # Fetching  the url and returning the soup object
 def Fetch(url):
     req = requests.get(url).content
@@ -33,26 +33,42 @@ def Description_page(Path , api):
     return [Type,stock]
 
 
-soup = Fetch(url)
+
 
 # creating a Soup object
+def scrape():
+        for page in range(1, 51):
+            url = pagination(page)
+            soup = Fetch(url)
+            Books = soup.find_all("li" , class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
+            for book in Books:
+                title = book.find("h3").find("a").get("title")
+                description_url = book.find("h3").find("a")['href']
+                description_url = description_url[5:]
+                price = book.find("p" , class_="price_color").get_text()
+                review = book.find("p" , class_="star-rating")
+                review = Ratings[review.get("class")[1]]
+                Type , stock = Description_page(Path , description_url)
+                stock = stock.split()
+                stock = stock[2][1:]
+                Datas['Book'].append(title)
+                Datas['Price'].append(price)
+                Datas['Review'].append(review)
+                Datas['Stocks'].append(stock)
+                Datas['Type'].append(Type)
+                print(title)
 
-Books = soup.find_all("li" , class_="col-xs-6 col-sm-4 col-md-3 col-lg-3")
-for book in Books:
-    title = book.find("h3").find("a").get("title")
-    description_url = book.find("h3").find("a")['href']
-    description_url = description_url[5:]
-    price = book.find("p" , class_="price_color").get_text()
-    review = book.find("p" , class_="star-rating")
-    review = Ratings[review.get("class")[1]]
-    Type , stock = Description_page(Path , description_url)
-    stock = stock.split()
-    stock = stock[2][1:]
-    Datas['Book'].append(title)
-    Datas['Price'].append(price)
-    Datas['Review'].append(review)
-    Datas['Stocks'].append(stock)
-    Datas['Type'].append(Type)
+
+#function to go the next page 
+def pagination(page):
+        if(page == 1):
+            url = "https://books.toscrape.com/catalogue/category/books_1/index.html"
+        else:
+            url = f"https://books.toscrape.com/catalogue/category/books_1/page-{page}.html"
+        return url
+
+
+scrape()
 
 df = pd.DataFrame.from_dict(Datas)
 print(df)
