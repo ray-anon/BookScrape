@@ -68,10 +68,10 @@ def pagination(page):
             url = f"https://books.toscrape.com/catalogue/category/books_1/page-{page}.html"
         return url
 
-
-df = pd.DataFrame.from_dict(Datas)
-df.to_csv('BooksData/books_info.csv' , index=False)
+#automating the file it will scrape every 10 minutes and modify the changes
 if __name__ == '__main__':
     scrape()
     time_wait = 10
     time.sleep(time_wait  * 60)
+    df = pd.DataFrame.from_dict(Datas)
+    df.to_csv('BooksData/books_info.csv' , index=False)
