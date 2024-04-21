@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+import time
 
 Datas = {
     'Book':[],
@@ -68,7 +69,9 @@ def pagination(page):
         return url
 
 
-scrape()
-
 df = pd.DataFrame.from_dict(Datas)
-print(df)
+df.to_csv('BooksData/books_info.csv' , index=False)
+if __name__ == '__main__':
+    scrape()
+    time_wait = 10
+    time.sleep(time_wait  * 60)
